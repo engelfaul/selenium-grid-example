@@ -1,0 +1,91 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id "org.sonarqube" version "3.0"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url = 'https://repo.maven.apache.org/maven2'
+    }
+}
+
+apply from: "https://gradle.avaldigitallabs.com/resources/java-serenity-project.gradle"
+
+ext {
+    libs = [
+            slf4jApi: "org.slf4j:slf4j-api:${slf4jVersion}",
+            logback : "ch.qos.logback:logback-classic:${logbackVersion}",
+
+            test    : [
+                    serenity: [
+                            core               : "net.serenity-bdd:serenity-core:${serenityCoreVersion}",
+                            junit              : "net.serenity-bdd:serenity-junit:${serenityCoreVersion}",
+                            screenplay         : "net.serenity-bdd:serenity-screenplay:${serenityCoreVersion}",
+                            screenplayWebdriver: "net.serenity-bdd:serenity-screenplay-webdriver:${serenityCoreVersion}",
+                            rest               : "net.serenity-bdd:serenity-rest-assured:${serenityRestAssured}"
+                    ],
+                    junit   : "junit:junit:${junitVersion}",
+                    assertj : "org.assertj:assertj-core:${assertJVersion}",
+                    hamcrest: "org.hamcrest:hamcrest-all:${hamcrestVersion}"
+            ]
+    ]
+}
+
+dependencies {
+    implementation libs.logback
+    implementation 'io.cucumber:cucumber-java:6.8.0'
+    implementation 'io.cucumber:cucumber-junit:6.8.0'
+    implementation 'org.aeonbits.owner:owner-java8:1.0.9'
+    implementation "net.serenity-bdd:serenity-screenplay-rest:2.1.0"
+    implementation 'net.serenity-bdd:serenity-ensure:2.3.4'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.assertj:assertj-core:3.6.2'
+    testImplementation 'org.hamcrest:hamcrest-all:1.3'
+    testImplementation 'net.serenity-bdd:serenity-screenplay-rest:2.3.2'
+    compile 'org.sonarsource.scanner.maven:sonar-maven-plugin:3.6.0.1398'
+    compile group: 'io.rest-assured', name: 'json-schema-validator', version: '3.1.0'
+    compile group: 'com.github.fge', name: 'json-schema-validator', version: '2.0.0'
+    compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
+    compile group: 'net.serenity-bdd', name: 'serenity-cucumber6', version: '2.3.6'
+    implementation group: 'com.google.apis', name: 'google-api-services-gmail', version: 'v1-rev110-1.25.0'
+    implementation group: 'org.json', name: 'json', version: '20210307'
+}
+
+group = 'co.com.selenium-grid.automation'
+version = '1.0.0-SNAPSHOT'
+description = 'Selenium Grid example'
+sourceCompatibility = '1.8'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+test {
+    testLogging.showStandardStreams = true
+    systemProperties System.getProperties()
+    maxParallelForks = 4
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "qa:selenium-grid-example"
+        property "sonar.projectName", "Selenium Grid example"
+        property "sonar.sources", "src"
+        property "sonar.sourceEncoding", "UTF-8"
+        property "sonar.java.binaries", "build/classes"
+        property "sonar.coverage.exclusions", "**/*.java"
+        property "sonar.exclusions", "**/*Generated.java"
+        property "sonar.tests", ""
+    }
+}

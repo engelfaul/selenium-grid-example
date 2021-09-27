@@ -1,0 +1,18 @@
+version: '1'
+
+pipeline:
+  test:
+    systemProperties:
+      'environment': 'stg'
+
+  stacks:
+
+    - stack: 'dev'
+      test:
+        systemProperties:
+          'failsafe.rerunFailingTestsCount': '1'
+
+    - stack: 'stg'
+      test:
+        systemProperties:
+          'failsafe.rerunFailingTestsCount': '1'
